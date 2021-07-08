@@ -10,6 +10,8 @@ import (
 	"github.com/sdboyer/cuetsy/encoder"
 )
 
+type attrTSTarget string
+
 func (cmd Command) generateDashboardTypeScripts(c utils.CommandLine) error {
 	dest := c.String("dest")
 
@@ -27,8 +29,6 @@ func generateTypeScriptFromCUE(dest string, p load.BaseLoadPaths) error {
 	}
 
 	for panelName, panelSchema := range panelSchemaMap {
-		got := fmt.Sprintf("%+v", panelSchema.CUE())
-		fmt.Println("<<<<<<<<<<", got)
 		b, err := encoder.Generate(panelSchema.CUE(), encoder.Config{})
 		if err != nil {
 			return err
