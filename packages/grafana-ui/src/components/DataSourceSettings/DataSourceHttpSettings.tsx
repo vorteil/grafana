@@ -56,7 +56,7 @@ const HttpAccessHelp = () => (
 );
 
 export const DataSourceHttpSettings: React.FC<HttpSettingsProps> = (props) => {
-  const { defaultUrl, dataSourceConfig, onChange, showAccessOptions, sigV4AuthToggleEnabled } = props;
+  const { defaultUrl, dataSourceConfig, onChange, showAccessOptions, sigV4AuthToggleEnabled, title } = props;
   let urlTooltip;
   const [isAccessHelpVisible, setIsAccessHelpVisible] = useState(false);
   const theme = useTheme();
@@ -122,7 +122,7 @@ export const DataSourceHttpSettings: React.FC<HttpSettingsProps> = (props) => {
   return (
     <div className="gf-form-group">
       <>
-        <h3 className="page-heading">HTTP</h3>
+        <h3 className="page-heading">{title || 'HTTP'}</h3>
         <div className="gf-form-group">
           <div className="gf-form">
             <FormField label="URL" labelWidth={13} tooltip={urlTooltip} inputEl={urlInput} />

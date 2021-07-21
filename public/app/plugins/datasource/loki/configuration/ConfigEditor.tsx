@@ -35,7 +35,7 @@ export const ConfigEditor = (props: Props) => {
         onChange={onOptionsChange}
       />
 
-      <AlertingSettings<LokiOptions> options={options} onOptionsChange={onOptionsChange} />
+      <AlertingSettings<LokiOptions> options={options} onOptionsChange={onOptionsChange} sigV4AuthEnabled={false} />
 
       <div className="gf-form-group">
         <div className="gf-form-inline">
