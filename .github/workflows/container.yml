@@ -1,0 +1,29 @@
+name: Build grafana container image
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+  push: 
+    tags:
+      - v*
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: test version
+        run: |
+          echo ${{ env.RELEASE_VERSION }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - name: build container
+        run: |
+          make build-docker-full
+          export fullname=vorteil/grafana:${{ env.RELEASE_VERSION }}
+          docker tag grafana/grafana:dev $fullname
+          docker push $fullname
