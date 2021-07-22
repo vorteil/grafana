@@ -74,6 +74,9 @@ func (hs *HTTPServer) QueryMetricsV2(c *models.ReqContext, reqDTO dtos.MetricReq
 		return response.Error(http.StatusForbidden, "Access denied", err)
 	}
 
+	compensator.AddToMap(c.Req.Context(), c)
+	defer compensator.Delete(c.Req.Context())
+
 	resp, err := hs.DataService.HandleRequest(c.Req.Context(), ds, request)
 	if err != nil {
 		return response.Error(http.StatusInternalServerError, "Metric request error", err)

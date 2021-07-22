@@ -7,10 +7,12 @@ import (
 	"net/http"
 
 	"github.com/grafana/grafana-plugin-sdk-go/data"
+	"github.com/grafana/grafana/pkg/compensator"
 	"github.com/grafana/grafana/pkg/infra/httpclient"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/plugins"
+	"github.com/grafana/grafana/pkg/services/oauthtoken"
 
 	ot_pdata "go.opentelemetry.io/collector/consumer/pdata"
 )
@@ -105,6 +107,24 @@ func (e *tempoExecutor) createRequest(ctx context.Context, dsInfo *models.DataSo
 
 	if dsInfo.BasicAuth {
 		req.SetBasicAuth(dsInfo.BasicAuthUser, dsInfo.DecryptedBasicAuthPassword())
+	}
+
+	if oauthtoken.IsOAuthPassThruEnabled(dsInfo) {
+		tlog.Debug("Configuring oauth passthru")
+		dCtx := compensator.Load(ctx)
+		if dCtx == nil {
+			return nil, fmt.Errorf("request context not found; unable to configure oauth passthru")
+		}
+
+		c, ok := dCtx.(*models.ReqContext)
+		if !ok {
+			return nil, fmt.Errorf("invalid request context object")
+		}
+
+		if token := oauthtoken.GetCurrentOAuthToken(c.Req.Context(), c.SignedInUser); token != nil {
+			tlog.Debug("Setting 'Authorization' header from oauth credentials")
+			req.Header.Set("Authorization", fmt.Sprintf("%s %s", token.Type(), token.AccessToken))
+		}
 	}
 
 	req.Header.Set("Accept", "application/protobuf")
